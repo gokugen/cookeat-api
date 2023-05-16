@@ -1,0 +1,7 @@
+public
+node_modules/
+data/
+mongodb
+dist
+
+TO DO.txt
