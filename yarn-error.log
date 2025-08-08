@@ -28,7 +28,7 @@ Trace:
 
 npm manifest: 
   {
-    "name": "crakotte-api",
+    "name": "cookeat-api",
     "version": "1.0.0",
     "description": "",
     "main": "dist/index.js",

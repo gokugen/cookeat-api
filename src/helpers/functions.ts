@@ -10,12 +10,12 @@ const pwdRequirements = [
     { re: /[$&+,:;=?@#|'<>.^*()%!-]/, error: "Password must include a special symbol" },
 ];
 
-function getPasswordError(password: string) {
+function getPasswordError(password: string, language: string) {
     if (password.length < 6)
-        return "Password must include at least 6 characters";
+        return language === 'fr' ? "Le mot de passe doit contenir au moins 6 caractères" : "Password must include at least 6 characters";
     for (const r of pwdRequirements) {
         if (!r.re.test(password))
-            return r.error;
+            return language === 'fr' ? r.error : r.error;
     }
     return;
 }
@@ -23,6 +23,10 @@ function getPasswordError(password: string) {
 function generateTemporaryTokenBeforeHash() {
     // generate a temporary token
     return crypto.randomBytes(32).toString("hex");
+}
+
+function generateRefreshToken() {
+    return crypto.randomBytes(64).toString("hex");
 }
 
 function generateUrlTokenHashed(temporaryToken: string, id: string) {
@@ -66,5 +70,6 @@ export {
     generateUrlTokenHashed,
     getFilePathAndUrl,
     deleteFilesIfExist,
-    getPasswordError
+    getPasswordError,
+    generateRefreshToken
 }

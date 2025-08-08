@@ -1,4 +1,4 @@
-import { User } from "../../schema";
+import { User, AnonymousUser } from "../../schema";
 import ApiError from "../helpers/api-error";
 import bcrypt from "bcryptjs";
 import { NextFunction, Response } from "express";
@@ -56,30 +56,72 @@ async function updateUser(req: Request, res: Response, next: NextFunction) {
     res.status(200).send(user);
 }
 
-async function addCameraViewToUser(req: Request, res: Response, next: NextFunction) {
-    const user: any = await User.findById(req.params.id);
-
-    if (!user)
-        return next(new ApiError("User not found", 404));
-
-    if (!user.views.includes(req.body.streamUrl)) {
-        user.views.push(req.body.streamUrl)
-        user.save()
-    }
-    else
-        return next(new ApiError("Live already added", 404));
-
-    res.status(200).send(user);
-}
-
 function getUsers(req: Request, res: Response, next: NextFunction) {
     User.find({}, "+role").then(users => res.status(200).send(users))
+}
+
+async function saveOnboardingAnswers(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { answers, mobileId } = req.body;
+
+        if (!mobileId) {
+            return next(new ApiError("Mobile ID requis", 400));
+        }
+
+        if (!answers || Object.keys(answers).length === 0) {
+            return next(new ApiError("Réponses d'onboarding requises", 400));
+        }
+
+        // Vérifier si un utilisateur anonyme existe déjà avec ce mobileId
+        let anonymousUser = await AnonymousUser.findOne({ mobileId });
+
+        if (!anonymousUser) {
+            // Créer un nouvel utilisateur anonyme
+            anonymousUser = new AnonymousUser({
+                mobileId,
+                firstName: "Utilisateur",
+                role: "USER"
+            });
+        }
+
+        // Mapper les réponses aux champs de l'utilisateur anonyme
+        const questionMapping: Record<string, string> = {
+            'question_0': 'sex',
+            'question_1': 'age',
+            'question_2': 'cookingLevel',
+            'question_3': 'cookingFrequency',
+            'question_4': 'cookingForWho',
+            'question_5': 'cookingTime',
+            'question_6': 'diet',
+            'question_7': 'howDidHeKnowCookEatAI'
+        };
+
+        // Mettre à jour les champs avec les réponses
+        for (const [questionKey, answer] of Object.entries(answers)) {
+            const fieldName = questionMapping[questionKey];
+            if (fieldName) {
+                (anonymousUser as any)[fieldName] = answer;
+            }
+        }
+
+        await anonymousUser.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Réponses d'onboarding sauvegardées avec succès",
+            userId: anonymousUser._id
+        });
+
+    } catch (error) {
+        console.error('Erreur lors de la sauvegarde des réponses d\'onboarding:', error);
+        return next(new ApiError("Erreur lors de la sauvegarde des réponses", 500));
+    }
 }
 
 export {
     whoAmI,
     updateCurrentUser,
     updateUser,
-    addCameraViewToUser,
     getUsers,
+    saveOnboardingAnswers,
 }

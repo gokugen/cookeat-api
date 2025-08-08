@@ -1,27 +1,26 @@
 import bcrypt from "bcryptjs";
-import { User, Room } from "../../schema";
-import { UserType, Roles } from "../../types";
+import { User } from "../../schema";
+import { UserType, UserRoles, UserPlans } from "../../types";
 
 const admin = {
-	username: "ADMIN",
+	firstName: "ADMIN",
 	email: "hadjadjirayane@outlook.fr",
 	password: bcrypt.hashSync("123", 10),
-	role: Roles.ADMIN
+	role: UserRoles.ADMIN
 };
 
 
 const users: UserType[] = [
 	{
-		username: "Ahmed",
+		firstName: "Ahmed",
 		email: "hadjadjirayane@gmail.com",
 		password: bcrypt.hashSync("admin", 10),
-		role: Roles.USER
 	},
 	{
-		username: "Test",
+		firstName: "Test",
 		email: "test@gmail.com",
 		password: bcrypt.hashSync("test", 10),
-		role: Roles.USER
+		plan: UserPlans.PRO
 	},
 ];
 
@@ -38,7 +37,7 @@ async function createUsers() {
 		const u = await User.findOne({ email: user.email })
 		if (!u) {
 			await new User(user).save();
-			console.log(`User ${user.username} created`)
+			console.log(`User ${user.firstName} created`)
 		}
 	}
 }
@@ -48,7 +47,7 @@ async function wipeAndInsert() {
 
 	for (const user of users) {
 		await new User(user).save();
-		console.log(`USER: ${user.username} created`)
+		console.log(`USER: ${user.firstName} created`)
 	}
 }
 
@@ -57,13 +56,12 @@ async function deleteAll() {
 
 	for (const user of users) {
 		await new User(user).save();
-		console.log(`USER: ${user.username} created`)
+		console.log(`USER: ${user.firstName} created`)
 	}
 }
 
 async function insertIfNotExist() {
 	await User.deleteMany({});
-	await Room.deleteMany({});
 
 	await createAdmin();
 	await createUsers();

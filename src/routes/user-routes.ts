@@ -1,6 +1,6 @@
 import { checkAdmin } from "../controllers/auth-controller";
 import { RouteType } from "../../types";
-import { whoAmI, getUsers, updateCurrentUser, updateUser, addCameraViewToUser } from "../controllers/user-controller";
+import { whoAmI, getUsers, updateCurrentUser, updateUser, saveOnboardingAnswers } from "../controllers/user-controller";
 
 export default [
     {
@@ -16,7 +16,7 @@ export default [
     {
         url: "/users",
         method: "get",
-        func: getUsers
+        func: [checkAdmin, getUsers]
     },
     {
         url: "/users/:id",
@@ -24,8 +24,8 @@ export default [
         func: [checkAdmin, updateUser]
     },
     {
-        url: "/users/:id/views",
+        url: "/user/onboarding",
         method: "post",
-        func: addCameraViewToUser
+        func: saveOnboardingAnswers
     }
 ] as RouteType[];

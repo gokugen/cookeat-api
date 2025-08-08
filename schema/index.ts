@@ -1,7 +1,9 @@
 import { model } from "mongoose";
-import { RoomType, UserType } from "../types";
+import { UserType, AnonymousUserType } from "../types";
 import UserSchema from "./User";
-import RoomSchema from "./Room";
+import AnonymousUserSchema from "./AnonymousUser";
+import RecipeSchema, { RecipeType } from "./Recipe";
 
 export const User = model<UserType>("users", UserSchema);
-export const Room = model<RoomType>("rooms", RoomSchema);
+export const AnonymousUser = model<AnonymousUserType>("anonymous_users", AnonymousUserSchema);
+export const Recipe = model<RecipeType>("recipes", RecipeSchema);

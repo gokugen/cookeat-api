@@ -1,9 +1,14 @@
 import { Request as ExpressRequest } from "express";
-import { ObjectId, Document, SchemaDefinitionProperty } from "mongoose";
+import { Document } from "mongoose";
 
-export enum Roles {
+export enum UserRoles {
     ADMIN = "ADMIN",
     USER = "USER",
+}
+
+export enum UserPlans {
+    BASIC = "BASIC",
+    PRO = "PRO"
 }
 
 export type Request = ExpressRequest & {
@@ -13,23 +18,42 @@ export type Request = ExpressRequest & {
     filename?: string
 };
 
-export type RoomType = {
-    link: string;
-    isPublic: boolean;
-    category: string;
-    title: string;
-    tags?: SchemaDefinitionProperty<string[]>
-    views?: SchemaDefinitionProperty<string[]>
-} & Partial<Document<unknown, any, UserType>>
+export type AnonymousUserType = {
+    mobileId: string;
+    firstName: string;
+    role: UserRoles;
+    sex: string;
+    age: string;
+    cookingLevel: string;
+    cookingFrequency: string;
+    cookingForWho: string;
+    cookingTime: string;
+    diet: string;
+    howDidHeKnowCookEatAI: string;
+    lastActivity: any;
+} & Partial<Document<unknown, any, AnonymousUserType>>
 
 export type UserType = {
+    firstName: string;
     email: string;
-    username: string;
     password: string;
-    role: Roles
-    views?: SchemaDefinitionProperty<string[]>
-    videosFiles?: SchemaDefinitionProperty<any[]>
+    plan?: UserPlans;
+    role?: UserRoles;
+    stripeCustomerId?: string;
+    subscriptionId?: string;
+    subscriptionStatus?: string;
+    temporaryToken?: string;
+    tempPassword?: string;
+    refreshToken?: string;
+    useExternalConnexion?: boolean;
+    nbSearch?: number;
+    language?: string;
 } & Partial<Document<unknown, any, UserType>>
+
+export type StripeCustomerType = {
+    id: string;
+    email: string;
+} & Partial<Document<unknown, any, StripeCustomerType>>
 
 export type RouteType = {
     url: string;

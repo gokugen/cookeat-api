@@ -12,12 +12,15 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
             if (err)
                 return next(new ApiError("Unauthorized", 401));
 
-            User.findById(params._id).then(user => {
-                if (!user)
-                    return next(new ApiError("Unauthorized", 401))
-                req.user = user;
-                return next();
-            })
+            User
+                .findById(params._id)
+                // .populate("companies")
+                .then(user => {
+                    if (!user)
+                        return next(new ApiError("Unauthorized", 401))
+                    req.user = user;
+                    return next();
+                })
         });
     } else
         return next(new ApiError("Forbidden", 403));
