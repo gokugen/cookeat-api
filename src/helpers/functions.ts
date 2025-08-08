@@ -37,7 +37,7 @@ async function getFilePathAndUrl(enclosingDirectory: string, fileName: string) {
     const url = new URL(
         process.env.NODE_ENV === "local"
             ? `${process.env.SERVER_ADDRESS}:${process.env.SERVER_PORT}`
-            : `${process.env.SERVER_ADDRESS}
+            : `${process.env.SERVER_ADDRESS}`
     );
 
     const resourcePath = path.join(__dirname, "..", "..", process.env.NODE_ENV !== "local" ? ".." : "", "public");
