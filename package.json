@@ -2,12 +2,12 @@
   "name": "cookeat-api",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "index.ts",
   "scripts": {
     "start": "NODE_ENV=local nodemon index.ts",
     "build": "tsc --project ./",
-    "start-dev": "NODE_ENV=development node index.ts",
-    "start-prod": "NODE_ENV=production node index.ts",
+    "start-dev": "NODE_ENV=local nodemon index.ts",
+    "start-prod": "NODE_ENV=production nodemon index.ts",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
