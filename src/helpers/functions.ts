@@ -48,15 +48,6 @@ async function getFilePathAndUrl(enclosingDirectory: string, fileName: string) {
     return res;
 }
 
-const getFilePathFromUrl = (fileUrl: string) => {
-    const relativePath = path.join(__dirname, "..", "..", process.env.NODE_ENV !== "local" ? ".." : "", "public");
-    const publicDocs = path.resolve(__dirname, relativePath);
-    const localPath = path.relative("/api/resources", new URL(fileUrl).pathname);
-    const res = path.join(publicDocs, localPath);
-    console.log(res)
-    return res;
-}
-
 async function deleteFilesIfExist(directory: string, filename: string) {
     const files = await fs.promises.readdir(directory);
     for (const f of files) {

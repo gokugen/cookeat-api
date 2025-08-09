@@ -4,7 +4,6 @@ import jwt, { Secret } from "jsonwebtoken";
 import ApiError from "../helpers/api-error";
 import { Response, NextFunction } from "express";
 import { getPasswordError, generateTemporaryTokenBeforeHash, generateRefreshToken } from "../helpers/functions";
-import axios from "axios";
 import { Request } from "../../types";
 import { sendPasswordResetEmail, sendEmailWithLanguage } from "../services/email-service";
 
@@ -165,63 +164,6 @@ function logout(req: Request, res: Response, next: NextFunction) {
     res.status(200).send();
 }
 
-async function googleAuth(req: Request, res: Response, next: NextFunction) {
-    if (!req.body.code)
-        return next(new ApiError("Parameters missing", 400));
-
-    try {
-        // Échanger le code d'autorisation contre un token d'accès Google
-        const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
-            code: req.body.code,
-            client_id: process.env.GOOGLE_CLIENT_ID,
-            client_secret: process.env.GOOGLE_CLIENT_SECRET,
-            redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-            grant_type: 'authorization_code'
-        });
-
-        const { access_token } = tokenResponse.data;
-
-        // Récupérer les informations de l'utilisateur Google
-        const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
-            headers: {
-                Authorization: `Bearer ${access_token}`
-            }
-        });
-
-        const { email, name, picture } = userInfoResponse.data;
-
-        // Vérifier si l'utilisateur existe déjà
-        let user = await User.findOne({ email: email.toLowerCase() });
-
-        if (!user) {
-            // Créer un nouvel utilisateur
-            user = new User({
-                email: email.toLowerCase(),
-                password: '', // Pas de mot de passe pour les utilisateurs Google
-                useExternalConnexion: true
-            });
-            await user.save();
-        }
-
-        // Générer refresh token et mettre à jour l'utilisateur
-        const refreshToken = generateRefreshToken();
-        user.refreshToken = refreshToken;
-        await user.save();
-
-        // Générer un token d'accès
-        const token = jwt.sign({ _id: user._id }, process.env.ACCESSTOKENSECRET as Secret, { expiresIn: '15m' });
-
-        res.status(200).send({
-            token,
-            refreshToken,
-        });
-
-    } catch (error) {
-        console.error('Erreur Google Auth:', error);
-        return next(new ApiError("Invalid credentials", 401));
-    }
-}
-
 export {
     signUp,
     signIn,
@@ -229,6 +171,5 @@ export {
     resetPassword,
     refreshToken,
     logout,
-    googleAuth,
     checkAdmin
 };
