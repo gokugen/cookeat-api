@@ -5,7 +5,7 @@ import { authenticateJWT } from "../jwt";
 
 const isPublic = (url: string) => {
     let res = false;
-    ["sign", "reset", "request-password", "views", "videos", "payment", "recipe", "onboarding"].forEach(endpoint => {
+    ["sign", "reset", "request-password", "views", "videos", "payment", "recipe", "onboarding", "notification-token", "activity"].forEach(endpoint => {
         if (url.includes(endpoint)) res = true;
     });
     return res;

@@ -118,10 +118,82 @@ async function saveOnboardingAnswers(req: Request, res: Response, next: NextFunc
     }
 }
 
+async function updateNotificationToken(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { mobileId, notificationToken } = req.body;
+
+        if (!mobileId) {
+            return next(new ApiError("Mobile ID requis", 400));
+        }
+
+        if (!notificationToken) {
+            return next(new ApiError("Token de notification requis", 400));
+        }
+
+        // Trouver l'utilisateur anonyme
+        let anonymousUser = await AnonymousUser.findOne({ mobileId });
+
+        if (!anonymousUser) {
+            // Créer un nouvel utilisateur anonyme avec le token
+            anonymousUser = new AnonymousUser({
+                mobileId,
+                firstName: "Utilisateur",
+                role: "USER",
+                notificationToken
+            });
+        } else {
+            // Mettre à jour le token existant
+            anonymousUser.notificationToken = notificationToken;
+        }
+
+        await anonymousUser.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Token de notification mis à jour avec succès"
+        });
+
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour du token de notification:', error);
+        return next(new ApiError("Erreur lors de la mise à jour du token", 500));
+    }
+}
+
+async function updateUserActivity(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { mobileId } = req.body;
+
+        if (!mobileId) {
+            return next(new ApiError("Mobile ID requis", 400));
+        }
+
+        // Trouver et mettre à jour l'activité de l'utilisateur anonyme
+        const anonymousUser = await AnonymousUser.findOne({ mobileId });
+
+        if (!anonymousUser) {
+            return next(new ApiError("Utilisateur anonyme non trouvé", 404));
+        }
+
+        anonymousUser.lastActivity = new Date();
+        await anonymousUser.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Activité utilisateur mise à jour avec succès"
+        });
+
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour de l\'activité:', error);
+        return next(new ApiError("Erreur lors de la mise à jour de l'activité", 500));
+    }
+}
+
 export {
     whoAmI,
     updateCurrentUser,
     updateUser,
     getUsers,
     saveOnboardingAnswers,
+    updateNotificationToken,
+    updateUserActivity,
 }

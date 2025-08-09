@@ -13,5 +13,7 @@ export default new Schema<AnonymousUserType>({
 	cookingTime: { type: String },
 	diet: { type: String },
 	howDidHeKnowCookEatAI: { type: String },
-	lastActivity: { type: Date, default: () => new Date() }
+	lastActivity: { type: Date, default: () => new Date() },
+	notificationToken: { type: String },
+	lastNotificationSent: { type: Date }
 }, { minimize: false });

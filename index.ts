@@ -9,6 +9,7 @@ import type { ErrorRequestHandler, Handler } from "express";
 import * as mockDataController from "./src/controllers/mock-data-controller";
 import loadRoutes from "./src/routes";
 import path from "path";
+import { activityChecker } from "./src/jobs/activity-checker";
 
 mongoose.connect(process.env.MONGO_URL as string, {
     useNewUrlParser: true,
@@ -20,7 +21,11 @@ mongoose.connect(process.env.MONGO_URL as string, {
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => console.log("db connected"));
+db.once("open", () => {
+    console.log("db connected");
+    // Démarrer le job de vérification d'activité après la connexion à la DB
+    activityChecker.start();
+});
 
 const app = express();
 

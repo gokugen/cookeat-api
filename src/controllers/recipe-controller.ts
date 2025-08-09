@@ -79,7 +79,7 @@ export async function generateSingleRecipeWithFilters(req: Request, res: Respons
       - The provided ingredients MUST be used in the recipe
       - ${allowOtherIngredients ? 'You can add other common ingredients to enrich the recipe (spices, condiments, etc.)' : 'Use ONLY the provided ingredients, do NOT add any other ingredient'}
       - Quantities must be realistic and proportional to the number of people
-      - Icons must be an emoji, not text.
+      - Icons must be an emoji, not text (only one emoji per ingredient).
       - Be creative!`
       :
       `Tu es un chef cuisinier expert.
@@ -95,7 +95,7 @@ export async function generateSingleRecipeWithFilters(req: Request, res: Respons
       - Les ingrédients fournis DOIVENT être utilisés dans la recette
       - ${allowOtherIngredients ? 'Tu peux ajouter d\'autres ingrédients courants pour enrichir la recette (épices, condiments, etc.)' : 'Utilise UNIQUEMENT les ingrédients fournis, n\'ajoute AUCUN autre ingrédient'}
       - Les quantités doivent être réalistes et proportionnelles au nombre de personnes
-      - Les icones doivent être un emoji pas de texte.
+      - Les icones doivent être un emoji pas de texte (un seul emoji par ingrédient).
       - Sois créatif !`;
 
     // Construire le contexte avec les recettes existantes
@@ -123,7 +123,9 @@ export async function generateSingleRecipeWithFilters(req: Request, res: Respons
     }
 
     const input = language === 'en' ?
-      `Generate a recipe with these ingredients: ${ingredients}. 
+      `Generate a recipe : 
+      
+      IMPORTANT: Extract only the ingredients you need for the recipe from this list: ${ingredients}. 
       
       Preferences:
       Dish type: ${dishType === "all" ? ["Soup", "Gratin", "Quiche", "Pizza", "Toast", "Tortilla", "Stew", "Omelet", "Meal"][Math.floor(Math.random() * 9)] : dishType},
@@ -140,10 +142,12 @@ export async function generateSingleRecipeWithFilters(req: Request, res: Respons
       
       CALORIE CONSTRAINT: The recipe must contain less than ${calories} calories per person.
 
-      IMPORTANT: You are not obliged to use all the ingredients provided. ${dishType === "all" && "VARIES BETWEEN DISH TYPES"} !!!
+      ${dishType === "all" && "VARIES BETWEEN DISH TYPES"} !!!
       
       Return the recipe with all requested details.` :
-      `Génère une recette avec ces ingrédients: ${ingredients}. 
+      `Génère une recette : 
+
+      IMPORTANT: Extrait seulement les ingrédients dont tu as besoin pour la recette parmis cette liste : ${ingredients}. 
       
       Préférences: Type de plat:
       ${dishType === "all" ? ["Soupe", "Gratin", "Quiche", "Pizza", "Toast", "Tortilla", "Ragout", "Omelette", "Repas"][Math.floor(Math.random() * 9)] : dishType},
@@ -160,7 +164,7 @@ export async function generateSingleRecipeWithFilters(req: Request, res: Respons
       
       CONTRAINTE CALORIES: La recette doit contenir moins de ${calories} calories par personne.
 
-        IMPORTANT: Tu n'es pas obligé d'utiliser tous les ingrédients fournis. ${cuisineStyle === "all" && "VARIE ENTRE STYLES DE CUISINE"} !!!
+      ${cuisineStyle === "all" && "VARIE ENTRE STYLES DE CUISINE"}
       
       Retourne la recette avec tous les détails demandés.`;
 
@@ -215,8 +219,12 @@ export async function getRecipeSteps(req: Request, res: Response, next: NextFunc
     const response: any = await openai.responses.parse({
       model: "gpt-4.1-nano",
       instructions: language === 'en' ?
-        `steps: [{title: string, description: string}] (array of steps with titles and descriptions, it must have at least 6 steps for an EASY recipe, 10 steps for MEDIUM and 13 steps for HARD, be precise and detailed so that even a beginner who has never cooked can follow the instructions!)` :
-        `steps: [{title: string, description: string}] (tableau d'étapes de préparation avec les quantités, il doit y avoir au MINIMUM 6 étapes pour une recette de difficulté EASY, 10 étapes pour MEDIUM et 13 étapes pour HARD, soit très précis et détaillé pour que même un débutant qui n'a jamais cuisiné puisse suivre les instructions !)`,
+        `steps: Tableau d'étapes de préparation avec les quantités de chaque ingrédient pour chaque étape, il doit y avoir au MINIMUM 10 étapes et au moins 15 étapes pour la difficulté HARD.
+         IMPORTNANT : Soit très précis et détaillé et utilise des mots très simples pour que même un débutant qui n'a jamais cuisiné puisse suivre les instructions sans aucune difficulté !
+         IMPORTANT : Ne pas utiliser de mots techniques ou de termes spécifiques à la cuisine, mais des mots simples et compréhensibles pour tous !` :
+        `steps: Tableau d'étapes de préparation avec les quantités de chaque ingrédient pour chaque étape, il doit y avoir au MINIMUM 10 étapes et au moins 15 étapes pour la difficulté HARD.
+         IMPORTNANT : Soit très précis et détaillé et utilise des mots très simples pour que même un débutant qui n'a jamais cuisiné puisse suivre les instructions sans aucune difficulté !
+         IMPORTANT : Ne pas utiliser de mots techniques ou de termes spécifiques à la cuisine, mais des mots simples et compréhensibles pour tous !`,
       input: language === 'en' ?
         `I want the preparation steps of the recipe: ${JSON.stringify(recipe)}` :
         `Je veux les étapes de préparation de la recette : ${JSON.stringify(recipe)}`,

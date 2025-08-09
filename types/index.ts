@@ -31,6 +31,8 @@ export type AnonymousUserType = {
     diet: string;
     howDidHeKnowCookEatAI: string;
     lastActivity: any;
+    notificationToken?: string;
+    lastNotificationSent?: any;
 } & Partial<Document<unknown, any, AnonymousUserType>>
 
 export type UserType = {
