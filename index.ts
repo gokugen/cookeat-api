@@ -29,9 +29,6 @@ db.once("open", () => {
 
 const app = express();
 
-// Middleware pour préserver le body brut pour les webhooks Stripe
-app.use('/api/payment/webhook', express.raw({ type: '*/*' }));
-
 // Middleware JSON pour toutes les autres routes
 app.use(express.json());
 app.use(cors());

@@ -41,9 +41,6 @@ export type UserType = {
     password: string;
     plan?: UserPlans;
     role?: UserRoles;
-    stripeCustomerId?: string;
-    subscriptionId?: string;
-    subscriptionStatus?: string;
     temporaryToken?: string;
     tempPassword?: string;
     refreshToken?: string;
